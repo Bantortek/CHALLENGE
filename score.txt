@@ -1,1 +1,1 @@
-gain = 12 fuel = 5212,793 temps = 523,5379
+gain = 9 fuel = 16463,8 temps = 582,8774
