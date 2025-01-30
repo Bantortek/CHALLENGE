@@ -2,16 +2,6 @@ import math as m
 import time
 import matplotlib.pyplot as plt
 
-ray = 0.65  # 0.65 #somme des rayons du robot et d'un cylindre
-
-fuel = 10 ** 4
-
-time_limit = 10 * 60
-Vo = 1
-a = 0.0698
-b = 10 ** -2
-bo = 10 ** -2
-
 
 def input_txt_to_list(txt_file):
     with open(txt_file) as file:
@@ -31,7 +21,14 @@ def pt_list_to_txt(pt_list, cyl_coord):
     :param cyl_coord: liste des cylindres avec leurs coordonnées en x, en y, et leur valeur en points (dimensions: n*3)
     :return: rien (écrit directement dans un fichier texte)
     """
-    global ray, fuel, Vo, a, b, bo
+    ray = 0.65  # 0.65 #somme des rayons du robot et d'un cylindre
+    fuel = 2 * 10 ** 4
+    time_limit = 10 * 60
+    Vo = 1
+    a_const = 0.0698
+    b = 10 ** -2
+    bo = 10 ** -2
+
     sortie = ""
     pos_actuelle = [0, 0, 0]  # [x,y,angle_deg]
     dir_act = [1, 0]
@@ -46,13 +43,14 @@ def pt_list_to_txt(pt_list, cyl_coord):
     time = 0
     score = 0
     masse = 0
-    while i < len(pt_list):
-        print(len(pt_list),i)
-        pt = cyl_coord[pt_list[i]]
+    stop_the_count = True
+    while i < len(pt_list) or i < len(pt_list):
+        # print("===========================\n",len(cyl_coord),pt_list[i],len(pt_list),i)
+        pt = cyl_coord[pt_list[i] - 1]
         points_passes.append(pt_list[i])
         # on regarde si on passe par un cylindre invoulu ou pas:
         go_next = True
-        
+
         for u in range(len(cyl_coord)):
             cyl = cyl_coord[u]
             if u not in points_passes and go_next:
@@ -97,10 +95,10 @@ def pt_list_to_txt(pt_list, cyl_coord):
                         draw_list.append([new_pt_max, pt, 1])
                     pt_list.insert(i, len(cyl_coord) - 1)
                     pt = cyl_coord[pt_list[i]]
+                    points_passes.append(len(cyl_coord) - 1)
                     go_next = False
-                    print(i,len(pt_list))
-            
-    
+                    # print(i,len(pt_list))
+
         distance = m.sqrt((pt[0] - pos_actuelle[0]) ** 2 + (pt[1] - pos_actuelle[1]) ** 2)
         dir_obj = [pt[0] - pos_actuelle[0], pt[1] - pos_actuelle[1]]
 
@@ -126,6 +124,7 @@ def pt_list_to_txt(pt_list, cyl_coord):
         trajet[1].append(trajet[1][-1] + dir_act[1])
         # ===============================
         # partie calcul score
+
         if time < time_limit and fuel > 0:
             score += pt[2]
             if pt[2] == 1:
@@ -134,37 +133,46 @@ def pt_list_to_txt(pt_list, cyl_coord):
                 masse += 2
             if pt[2] == 3:
                 masse += 2
-            vitesse = Vo * m.exp(-a*masse)
+            vitesse = Vo * m.exp(-a_const * masse)
             time += distance / vitesse
             conso = masse * b + bo
             fuel -= conso * distance
 
-            # ===============================
+        if (time >= time_limit or fuel <= 0) and stop_the_count:
+            score -= pt[2]
+            if time > time_limit:
+                time = time_limit
+            if fuel < 0:
+                fuel = 0
+            stop_the_count = False
+
+        print(pt, score, time)
+        # ===============================
         i += 1
 
     sortie += "FINISH"
     with open("script.txt", 'w') as file:
         file.write(sortie)
-    return trajet, draw_list, [score, time, fuel]
+
+    return trajet, draw_list, [score, time, -fuel]
 
 
 # sortir une liste [points, temps_mis, carburant_utilisé]
 
-
-#pt_list = [4, 19]
-
-#cyl_coord = input_txt_to_list("donnees-map.txt")
-#x_list = []
-#y_list = []
-#for elt in cyl_coord:
+pt_list = [11, 2, 8, 16, 3, 9, 6, 14, 18, 19, 5, 7, 12, 1, 4, 17, 13, 10, 15, 20]
+ray = 0.65
+cyl_coord = input_txt_to_list("donnees-map.txt")
+x_list = []
+y_list = []
+for elt in cyl_coord:
     x_list.append(elt[0])
     y_list.append(elt[1])
-#trajet, draw_list, results = pt_list_to_txt(pt_list, cyl_coord)
-#print(results)
-#for i in range(len(x_list)):
+trajet, draw_list, results = pt_list_to_txt(pt_list, cyl_coord)
+print(results)
+for i in range(len(x_list)):
     crcl = plt.Circle((x_list[i], y_list[i]), ray)
     plt.gca().add_patch(crcl)
-#plt.scatter(x_list, y_list)
-#plt.plot(trajet[0], trajet[1], color='r')
-#plt.axis('equal')
-#plt.show()
+plt.scatter(x_list, y_list)
+plt.plot(trajet[0], trajet[1], color='r')
+plt.axis('equal')
+plt.show()

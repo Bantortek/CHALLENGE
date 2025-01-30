@@ -153,7 +153,7 @@ def Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation):
 def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75,nb_de_mutation=1):
 # entrée : matrice 20X3 qui représente la map + parametre de la selection
 # sortie : liste de len 20 qui est la meilleur solution après selection naturelle
-    a=time.time()
+    time1=time.time()
     if (nb_tri*nb_tri-1)<nb_par_gen:
         return "Erreur nb_tri est trop petit"
     if nb_par_gen%nb_tri!=0:
@@ -161,26 +161,38 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
     if nb_tri%2!=0:
         return "Erreur nb_tri doit être multiple de 2"
     dico_derangement=Initialisation_gen(nb_par_gen)
-    for i in range (nb_gen_max):
+    list_pt_map_archive = list_pt_map.copy()
+    for j in range (nb_gen_max):
         for key in dico_derangement:
             print(key)
+            list_pt_map = list_pt_map_archive.copy()
             dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
             print('OK')
         dico_trier=Tri_dico(dico_derangement)
-        dico_gen_suiv=Crossover(dico_derangement,nb_par_gen,nb_tri)
+        dico_gen_suiv=Crossover(dico_trier,nb_par_gen,nb_tri)
         dico_gen_mute=Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation)
         dico_derangement=dico_gen_mute
         
     for key in dico_derangement:
-            dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)
+        list_pt_map = list_pt_map_archive.copy()
+        dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
+
+
     dico_trier=Tri_dico(dico_derangement)
+    print("====================================================")
+    for key in dico_trier:
+        print(key, dico_trier[key])
+    print("====================================================")
     i=0
     for key in dico_trier:
+        #print(key)
         if i ==0:
             solution = list(key)
+
             score=dico_trier[tuple(solution)]
-    b=time.time()
-    print("temps d'execution = ",b-a)
+        i = -1
+    time2=time.time()
+    print("temps d'execution = ", time2-time1)
     return solution , score
 
 
@@ -190,6 +202,7 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
 
 
 list_pt_map=lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
-#print(list_pt_map)
+# print(list_pt_map)
 list_solution=Solution(list_pt_map,1,100,50,50,1)
 print(list_solution)
+
