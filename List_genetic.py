@@ -1,6 +1,8 @@
 import math as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import random
+import pt_list_to_txt as lt
+import time
 
 def Initialisation_gen(nb_par_gen):
 # entrée : nombre d'élement par génération
@@ -22,13 +24,14 @@ def Tri_dico(dico):
     return dico
 
 
+
 def Crossover(dico,nb_par_gen,nb_tri):
 # entrée : dictionnaire des dérangement trié
 # sortie : dictionnaire de dérangement de la prochaine génération (sans mutation)
     list_parent=[]
     dico_gen_suivante={}
     for key in dico:
-        if len(list)<nb_tri:
+        if len(list_parent)<nb_tri:
             list_parent.append(list(key))
     couples=Couple_random(nb_par_gen,nb_tri)
     for couple in couples:
@@ -150,6 +153,7 @@ def Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation):
 def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75,nb_de_mutation=1):
 # entrée : matrice 20X3 qui représente la map + parametre de la selection
 # sortie : liste de len 20 qui est la meilleur solution après selection naturelle
+    a=time.time()
     if (nb_tri*nb_tri-1)<nb_par_gen:
         return "Erreur nb_tri est trop petit"
     if nb_par_gen%nb_tri!=0:
@@ -158,15 +162,34 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
         return "Erreur nb_tri doit être multiple de 2"
     dico_derangement=Initialisation_gen(nb_par_gen)
     for i in range (nb_gen_max):
-        ## calcule score
+        for key in dico_derangement:
+            print(key)
+            dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
+            print('OK')
         dico_trier=Tri_dico(dico_derangement)
         dico_gen_suiv=Crossover(dico_derangement,nb_par_gen,nb_tri)
         dico_gen_mute=Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation)
         dico_derangement=dico_gen_mute
-    # calcule du score
+        
+    for key in dico_derangement:
+            dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)
+    dico_trier=Tri_dico(dico_derangement)
     i=0
     for key in dico_trier:
         if i ==0:
             solution = list(key)
-    return solution
+            score=dico_trier[tuple(solution)]
+    b=time.time()
+    print("temps d'execution = ",b-a)
+    return solution , score
 
+
+
+
+
+
+
+list_pt_map=lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
+#print(list_pt_map)
+list_solution=Solution(list_pt_map,1,100,50,50,1)
+print(list_solution)
