@@ -2,7 +2,7 @@ import math as m
 import time
 import matplotlib.pyplot as plt
 
-ray = 0.65  # 0.65 #somme des rayons du robot et d'un cylindre
+ray = 1.75  # 0.65 #somme des rayons du robot et d'un cylindre
 
 fuel = 10 ** 4
 
@@ -68,10 +68,11 @@ def pt_list_to_txt(pt_list, cyl_coord):
                         0
                     ])
                 if pos_actuelle[0] < pt[0]:
-                    interval_test = pos_actuelle[0] < cyl[0] < pt[0]
+                    interval_test = pos_actuelle[0] < x_intersec < pt[0]
                 else:
-                    interval_test = pos_actuelle[0] > cyl[0] > pt[0]
+                    interval_test = pos_actuelle[0] > x_intersec > pt[0]
                 if m.sqrt((x_intersec - cyl[0]) ** 2 + (y_intersec - cyl[1]) ** 2) <= ray and interval_test:
+                    print(u)
                     # si il est trop proche du centre du cercle
                     # calcul des deux points de chaque coté du cylindre possibles
                     new_x_a = cyl[0] + (ray + 0.1) / m.sqrt(
@@ -95,6 +96,7 @@ def pt_list_to_txt(pt_list, cyl_coord):
                         draw_list.append([new_pt_max, pt, 1])
                     pt_list.insert(i, len(cyl_coord) - 1)
                     pt = cyl_coord[pt_list[i]]
+                    points_passes.append(pt_list[i])
                     go_next = False
         distance = m.sqrt((pt[0] - pos_actuelle[0]) ** 2 + (pt[1] - pos_actuelle[1]) ** 2)
         dir_obj = [pt[0] - pos_actuelle[0], pt[1] - pos_actuelle[1]]
@@ -146,12 +148,13 @@ def pt_list_to_txt(pt_list, cyl_coord):
 # sortir une liste [points, temps_mis, carburant_utilisé]
 
 
-pt_list = [4, 19]
+pt_list = [18, 20, 7, 9, 13, 15, 16, 17, 4, 2, 14, 1, 19, 3, 6, 5, 12, 8, 11, 10]
 
 cyl_coord = input_txt_to_list("donnees-map.txt")
 x_list = []
 y_list = []
-for elt in cyl_coord:
+for i in range(len(cyl_coord)):
+    elt = cyl_coord[i]
     x_list.append(elt[0])
     y_list.append(elt[1])
 trajet, draw_list, results = pt_list_to_txt(pt_list, cyl_coord)
@@ -160,6 +163,8 @@ for i in range(len(x_list)):
     crcl = plt.Circle((x_list[i], y_list[i]), ray)
     plt.gca().add_patch(crcl)
 plt.scatter(x_list, y_list)
+for i in range(len(x_list)):
+    plt.text(x_list[i], y_list[i], str(i))
 plt.plot(trajet[0], trajet[1], color='r')
 plt.axis('equal')
 plt.show()
