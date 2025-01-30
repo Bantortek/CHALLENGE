@@ -2,7 +2,16 @@ import math as m
 import time
 import matplotlib.pyplot as plt
 
-ray = 0.65 #0.65 #somme des rayons du robot et d'un cylindre
+ray = 0.65  # 0.65 #somme des rayons du robot et d'un cylindre
+
+fuel = 10 ** 4
+
+time_limit = 10 * 60
+Vo = 1
+a = 0.0698
+b = 10 ** -2
+bo = 10 ** -2
+
 
 def input_txt_to_list(txt_file):
     with open(txt_file) as file:
@@ -22,7 +31,7 @@ def pt_list_to_txt(pt_list, cyl_coord):
     :param cyl_coord: liste des cylindres avec leurs coordonnées en x, en y, et leur valeur en points (dimensions: n*3)
     :return: rien (écrit directement dans un fichier texte)
     """
-    global ray
+    global ray, fuel, Vo, a, b, bo
     sortie = ""
     pos_actuelle = [0, 0, 0]  # [x,y,angle_deg]
     dir_act = [1, 0]
@@ -33,6 +42,10 @@ def pt_list_to_txt(pt_list, cyl_coord):
     points_passes = []
     i = 0
     draw_list = []
+
+    time = 0
+    score = 0
+    masse = 0
     while i < len(pt_list):
         pt = cyl_coord[pt_list[i]]
         points_passes.append(pt_list[i])
@@ -61,9 +74,11 @@ def pt_list_to_txt(pt_list, cyl_coord):
                 if m.sqrt((x_intersec - cyl[0]) ** 2 + (y_intersec - cyl[1]) ** 2) <= ray and interval_test:
                     # si il est trop proche du centre du cercle
                     # calcul des deux points de chaque coté du cylindre possibles
-                    new_x_a = cyl[0] + (ray + 0.1) / m.sqrt(1 + 1 / (a ** 2)) #<======================== 1/racine was 0.66/racine
+                    new_x_a = cyl[0] + (ray + 0.1) / m.sqrt(
+                        1 + 1 / (a ** 2))  # <======================== 1/racine was 0.66/racine
                     new_y_a = -1 / a * (new_x_a - cyl[0]) + cyl[1]
-                    new_x_b = cyl[0] - (ray + 0.1) / m.sqrt(1 + 1 / (a ** 2)) #<======================== 1/racine was 0.66/racine
+                    new_x_b = cyl[0] - (ray + 0.1) / m.sqrt(
+                        1 + 1 / (a ** 2))  # <======================== 1/racine was 0.66/racine
                     new_y_b = -1 / a * (new_x_b - cyl[0]) + cyl[1]
                     if new_y_b < new_y_a:  # détermine lequel des deux est au dessus et lequel est en dessous
                         new_pt_max = [new_x_a, new_y_a, 0]
@@ -105,12 +120,27 @@ def pt_list_to_txt(pt_list, cyl_coord):
         trajet[0].append(trajet[0][-1] + dir_act[0])
         trajet[1].append(trajet[1][-1] + dir_act[1])
         # ===============================
+        # partie calcul score
+        if time < time_limit and fuel > 0:
+            score += pt[2]
+            if pt[2] == 1:
+                masse += 1
+            if pt[2] == 2:
+                masse += 2
+            if pt[2] == 3:
+                masse += 2
+            vitesse = Vo * m.exp(-a*masse)
+            time += distance / vitesse
+            conso = masse * b + bo
+            fuel -= conso * distance
+
+            # ===============================
         i += 1
 
     sortie += "FINISH"
     with open("script.txt", 'w') as file:
         file.write(sortie)
-    return trajet, draw_list
+    return trajet, draw_list, [score, time, fuel]
 
 
 # sortir une liste [points, temps_mis, carburant_utilisé]
@@ -124,8 +154,8 @@ y_list = []
 for elt in cyl_coord:
     x_list.append(elt[0])
     y_list.append(elt[1])
-trajet, draw_list = pt_list_to_txt(pt_list, cyl_coord)
-
+trajet, draw_list, results = pt_list_to_txt(pt_list, cyl_coord)
+print(results)
 for i in range(len(x_list)):
     crcl = plt.Circle((x_list[i], y_list[i]), ray)
     plt.gca().add_patch(crcl)
