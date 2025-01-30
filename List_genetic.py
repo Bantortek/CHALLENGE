@@ -20,10 +20,14 @@ def Initialisation_gen(nb_par_gen):
 def Tri_dico(dico):
 #entrée : dictionnaire des dérangement avec les scores
 #sortie : dictionnaire des dérangement avec les scores trié selon l'ordre d'itération par le score
-    sorted(dico ,key= lambda list: list[1])
+    dico=dict(sorted(dico.items() ,key=Trieur,reverse=True))
     return dico
 
-
+def Trieur(list):
+    #print(str(list[1]))
+    score,temps,fuel=list[1]
+    resultat=score*(10**20)+int(temps)*(10**10)+fuel
+    return resultat
 
 def Crossover(dico,nb_par_gen,nb_tri):
 # entrée : dictionnaire des dérangement trié
@@ -148,11 +152,12 @@ def Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation):
     return dico_mute
 
 
-
-
+TEMPS_INDICATIF=False
+liste_score=[]
 def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75,nb_de_mutation=1):
 # entrée : matrice 20X3 qui représente la map + parametre de la selection
 # sortie : liste de len 20 qui est la meilleur solution après selection naturelle
+
     time1=time.time()
     if (nb_tri*nb_tri-1)<nb_par_gen:
         return "Erreur nb_tri est trop petit"
@@ -162,47 +167,106 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
         return "Erreur nb_tri doit être multiple de 2"
     dico_derangement=Initialisation_gen(nb_par_gen)
     list_pt_map_archive = list_pt_map.copy()
+    print('=========================================')
     for j in range (nb_gen_max):
+        time100=time.time()
+        time10=time.time()
         for key in dico_derangement:
-            print(key)
+            #print(key)
             list_pt_map = list_pt_map_archive.copy()
             dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
-            print('OK')
+            #print('OK')
+        time20=time.time()
+        if TEMPS_INDICATIF:
+            print('Temps score = ',time20-time10)
+
+        time10=time.time()
         dico_trier=Tri_dico(dico_derangement)
+        time20=time.time()
+        if TEMPS_INDICATIF:
+            print('Temps tri = ',time20-time10)
+
+        time10=time.time()
         dico_gen_suiv=Crossover(dico_trier,nb_par_gen,nb_tri)
+        time20=time.time()
+        if TEMPS_INDICATIF:
+            print('Temps crossover = ',time20-time10)
+
+        time10=time.time()
         dico_gen_mute=Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation)
-        dico_derangement=dico_gen_mute
+        time20=time.time()
+        if TEMPS_INDICATIF:
+            print('Temps mutation = ',time20-time10)
         
-    for key in dico_derangement:
+
+        time10=time.time()
+        dico_derangement=dico_gen_mute
+        time20=time.time()
+        if TEMPS_INDICATIF:
+            print('Temps copy = ',time20-time10)
+        time200=time.time()
+        if TEMPS_INDICATIF:
+            print("Temps par gen = ", time200-time100,'\n')
+        print('Tx de completion = ',(100*(j+1))/nb_gen_max,'%')
+        i=0
+        for key in dico_trier:
+            if i ==0:
+                solution = list(key)
+                score=dico_trier[tuple(solution)]
+            i = -1
+        score[1]=abs(score[1]-lt.time_limit)
+        print('Score = ',score)
+        global liste_score
+        liste_score.append(score[1])
+        print('=========================================')
+    for key in dico_gen_suiv:
         list_pt_map = list_pt_map_archive.copy()
-        dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
+        dico_gen_suiv[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
 
 
-    dico_trier=Tri_dico(dico_derangement)
-    print("====================================================")
-    for key in dico_trier:
-        print(key, dico_trier[key])
-    print("====================================================")
+    dico_trier=Tri_dico(dico_gen_suiv)
     i=0
     for key in dico_trier:
         #print(key)
         if i ==0:
             solution = list(key)
-
             score=dico_trier[tuple(solution)]
         i = -1
     time2=time.time()
     print("temps d'execution = ", time2-time1)
+
+    #print(dico_trier.values())
+    score[1]=abs(score[1]-lt.time_limit)
     return solution , score
 
 
 
-
-
-
-
+'''
 list_pt_map=lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
 # print(list_pt_map)
-list_solution=Solution(list_pt_map,1,100,50,50,1)
+list_solution=Solution(list_pt_map,500,1000,100,25,4)
 print(list_solution)
+'''
 
+ray = 0.65
+cyl_coord = lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
+pt_list =Solution(cyl_coord,750,6000,80,50,1)[0]
+x_list = []
+y_list = []
+for elt in cyl_coord:
+    x_list.append(elt[0])
+    y_list.append(elt[1])
+trajet, draw_list, results = lt.pt_list_to_txt(pt_list, cyl_coord)
+print(results)
+for i in range(len(x_list)):
+    crcl = plt.Circle((x_list[i], y_list[i]), ray)
+    plt.gca().add_patch(crcl)
+plt.scatter(x_list, y_list)
+plt.plot(trajet[0], trajet[1], color='r')
+plt.axis('equal')
+plt.figure()
+liste_nb=[]
+for i in range (1,len(liste_score)+1):
+    liste_nb.append(i)
+plt.plot(liste_nb,liste_score)
+plt.show()

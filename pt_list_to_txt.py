@@ -13,6 +13,7 @@ def input_txt_to_list(txt_file):
             sortie.append([float(x) for x in elt.split(" ") if x])
     return sortie
 
+time_limit = 10 * 60
 
 def pt_list_to_txt(pt_list, cyl_coord):
     """
@@ -23,7 +24,7 @@ def pt_list_to_txt(pt_list, cyl_coord):
     """
     ray = 0.65  # 0.65 #somme des rayons du robot et d'un cylindre
     fuel = 2 * 10 ** 4
-    time_limit = 10 * 60
+    global time_limit
     Vo = 1
     a_const = 0.0698
     b = 10 ** -2
@@ -146,7 +147,7 @@ def pt_list_to_txt(pt_list, cyl_coord):
                 fuel = 0
             stop_the_count = False
 
-        print(pt, score, time)
+        #print(pt, score, time)
         # ===============================
         i += 1
 
@@ -154,14 +155,14 @@ def pt_list_to_txt(pt_list, cyl_coord):
     with open("script.txt", 'w') as file:
         file.write(sortie)
 
-    return trajet, draw_list, [score, time, -fuel]
+    return trajet, draw_list, [score, time_limit-time, fuel]
 
 
 # sortir une liste [points, temps_mis, carburant_utilisé]
-
-pt_list = [11, 2, 8, 16, 3, 9, 6, 14, 18, 19, 5, 7, 12, 1, 4, 17, 13, 10, 15, 20]
+"""
+pt_list = [3, 4, 2, 5, 1, 6, 14, 20, 15, 16, 19, 18, 17, 13, 9, 10, 11, 12, 8, 7]
 ray = 0.65
-cyl_coord = input_txt_to_list("donnees-map.txt")
+cyl_coord = input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
 x_list = []
 y_list = []
 for elt in cyl_coord:
@@ -176,3 +177,4 @@ plt.scatter(x_list, y_list)
 plt.plot(trajet[0], trajet[1], color='r')
 plt.axis('equal')
 plt.show()
+"""
