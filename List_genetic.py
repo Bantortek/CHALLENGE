@@ -152,7 +152,7 @@ def Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation):
     return dico_mute
 
 
-TEMPS_INDICATIF=False
+
 liste_score=[]
 def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75,nb_de_mutation=1):
 # entrée : matrice 20X3 qui représente la map + parametre de la selection
@@ -170,43 +170,46 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
     print('=========================================')
     for j in range (nb_gen_max):
         time100=time.time()
-        time10=time.time()
+        if TEMPS_INDICATIF:
+            time10=time.time()
         for key in dico_derangement:
             #print(key)
             list_pt_map = list_pt_map_archive.copy()
             dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
             #print('OK')
-        time20=time.time()
         if TEMPS_INDICATIF:
+            time20=time.time()
             print('Temps score = ',time20-time10)
 
-        time10=time.time()
-        dico_trier=Tri_dico(dico_derangement)
-        time20=time.time()
         if TEMPS_INDICATIF:
+            time10=time.time()
+        dico_trier=Tri_dico(dico_derangement)
+        if TEMPS_INDICATIF:    
+            time20=time.time()
             print('Temps tri = ',time20-time10)
 
-        time10=time.time()
-        dico_gen_suiv=Crossover(dico_trier,nb_par_gen,nb_tri)
-        time20=time.time()
         if TEMPS_INDICATIF:
+            time10=time.time()
+        dico_gen_suiv=Crossover(dico_trier,nb_par_gen,nb_tri)
+        if TEMPS_INDICATIF:    
+            time20=time.time()
             print('Temps crossover = ',time20-time10)
 
-        time10=time.time()
-        dico_gen_mute=Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation)
-        time20=time.time()
         if TEMPS_INDICATIF:
+            time10=time.time()
+        dico_gen_mute=Mutation(dico_gen_suiv,tx_mutation,nb_de_mutation)
+        if TEMPS_INDICATIF:
+            time20=time.time()
             print('Temps mutation = ',time20-time10)
         
-
-        time10=time.time()
-        dico_derangement=dico_gen_mute
-        time20=time.time()
         if TEMPS_INDICATIF:
+            time10=time.time()
+        dico_derangement=dico_gen_mute
+        if TEMPS_INDICATIF:
+            time20=time.time()
             print('Temps copy = ',time20-time10)
         time200=time.time()
-        if TEMPS_INDICATIF:
-            print("Temps par gen = ", time200-time100,'\n')
+        print("Temps par gen = ", time200-time100,'\n')
         print('Tx de completion = ',(100*(j+1))/nb_gen_max,'%')
         i=0
         for key in dico_trier:
@@ -247,6 +250,8 @@ list_pt_map=lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
 list_solution=Solution(list_pt_map,500,1000,100,25,4)
 print(list_solution)
 '''
+
+TEMPS_INDICATIF=False
 
 ray = 0.65
 cyl_coord = lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
