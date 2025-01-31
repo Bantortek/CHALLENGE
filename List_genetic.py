@@ -255,7 +255,7 @@ TEMPS_INDICATIF=False
 
 ray = 0.65
 cyl_coord = lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
-pt_list =Solution(cyl_coord,750,6000,80,50,1)[0]
+pt_list =Solution(cyl_coord,50,12000,120,50,1)[0]
 x_list = []
 y_list = []
 for elt in cyl_coord:
