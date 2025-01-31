@@ -1,1 +1,1 @@
-gain = 6 fuel = 18220,99 temps = 590,17
+gain = 40 fuel = 6139,94 temps = 469,0086

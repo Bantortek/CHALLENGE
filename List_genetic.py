@@ -157,7 +157,7 @@ liste_score=[]
 def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75,nb_de_mutation=1):
 # entrée : matrice 20X3 qui représente la map + parametre de la selection
 # sortie : liste de len 20 qui est la meilleur solution après selection naturelle
-
+    boa=[]
     time1=time.time()
     if (nb_tri*nb_tri-1)<nb_par_gen:
         return "Erreur nb_tri est trop petit"
@@ -175,7 +175,7 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
         for key in dico_derangement:
             #print(key)
             list_pt_map = list_pt_map_archive.copy()
-            dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
+            dico_derangement[key]=lt.pt_list_to_txt(list(key), list_pt_map,False)[2]
             #print('OK')
         if TEMPS_INDICATIF:
             time20=time.time()
@@ -224,7 +224,7 @@ def Solution(list_pt_map,nb_gen_max=10,nb_par_gen=1000,nb_tri=100,tx_mutation=75
         print('=========================================')
     for key in dico_gen_suiv:
         list_pt_map = list_pt_map_archive.copy()
-        dico_gen_suiv[key]=lt.pt_list_to_txt(list(key), list_pt_map)[2]
+        dico_gen_suiv[key]=lt.pt_list_to_txt(list(key), list_pt_map,False)[2]
 
 
     dico_trier=Tri_dico(dico_gen_suiv)
@@ -251,11 +251,12 @@ list_solution=Solution(list_pt_map,500,1000,100,25,4)
 print(list_solution)
 '''
 
-TEMPS_INDICATIF=False
+TEMPS_INDICATIF=True
 
-ray = 0.65
+ray = 1.9357731992148293
 cyl_coord = lt.input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
-pt_list =Solution(cyl_coord,50,12000,120,50,1)[0]
+pt_list =Solution(cyl_coord,50,6000,80,50,1)[0]
+print(pt_list)
 x_list = []
 y_list = []
 for elt in cyl_coord:
