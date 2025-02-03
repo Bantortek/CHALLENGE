@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def input_txt_to_list(txt_file):
-    with open(txt_file) as file:
+    with open(txt_file,encoding="utf-8") as file:
         entree = file.read()
     entree = entree.split("\n")
     sortie = []
@@ -17,14 +17,15 @@ def input_txt_to_list(txt_file):
 time_limit = 10 * 60
 
 
-def pt_list_to_txt(pt_list, cyl_coord,script = True):
+def pt_list_to_txt(pt_list, cyl_coord_global,script = True,nb=0):
     """
     transforme une liste de points en liste de commandes pour le robot
     :param pt_list: liste contenant les cylindres dans l'ordre dans lequel on veut les parcourir
     :param cyl_coord: liste des cylindres avec leurs coordonnées en x, en y, et leur valeur en points (dimensions: n*3)
     :return: rien (écrit directement dans un fichier texte)
     """
-    ray = 1.9357731992148293  # 0.65 #somme des rayons du robot et d'un cylindre
+    cyl_coord=cyl_coord_global.copy()
+    ray = 0.65 # 0.65 #somme des rayons du robot et d'un cylindre
     fuel = 2 * 10 ** 4
     global time_limit
     Vo = 1
@@ -164,32 +165,35 @@ def pt_list_to_txt(pt_list, cyl_coord,script = True):
     # print(points_passes)
     if script:
         sortie += "FINISH"
-        with open("script.txt", 'w') as file:
+        filename=r'C:\\CHALLENGE\\script'+str(nb)+'.txt'
+        with open(filename, 'w') as file:
             file.write(sortie)
-
-    return trajet, draw_list, [score, time_limit - time, fuel]
+        return trajet, draw_list, [score, time_limit - time, fuel]
+    else:
+        return [score, time_limit - time, fuel]
 
 
 # sortir une liste [points, temps_mis, carburant_utilisé]
+'''
+pt_list = [4, 9, 5, 8, 2, 1, 3, 11, 15, 14, 13, 17, 19, 10, 20, 18, 16, 7, 6, 12]
 
-# pt_list = [13, 17, 18, 19, 20, 12, 15, 10, 6, 9, 1, 16, 5, 14, 2, 3, 4, 8, 7, 11]
-#
-# ray = 1.9357731992148293
-# cyl_coord = input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
-# x_list = []
-# y_list = []
-# for elt in cyl_coord:
-#     x_list.append(elt[0])
-#     y_list.append(elt[1])
-# trajet, draw_list, results = pt_list_to_txt(pt_list, cyl_coord)
-# print(results)
-# for i in range(len(x_list)):
-#     crcl = plt.Circle((x_list[i], y_list[i]), ray)
-#     plt.gca().add_patch(crcl)
-# print(draw_list)
-# for elt in draw_list:
-#     plt.scatter([elt[0]], [elt[1]])
-# # plt.scatter(x_list, y_list)
-# plt.plot(trajet[0], trajet[1], color='r')
-# plt.axis('equal')
-# plt.show()
+ray = 1.9357731992148293
+cyl_coord = input_txt_to_list(r"C:\CHALLENGE\donnees-map.txt")
+x_list = []
+y_list = []
+for elt in cyl_coord:
+    x_list.append(elt[0])
+    y_list.append(elt[1])
+trajet, draw_list, results = pt_list_to_txt(pt_list, cyl_coord)
+print(results)
+for i in range(len(x_list)):
+   crcl = plt.Circle((x_list[i], y_list[i]), ray)
+   plt.gca().add_patch(crcl)
+print(draw_list)
+for elt in draw_list:
+    plt.scatter([elt[0]], [elt[1]])
+    plt.scatter(x_list, y_list)
+plt.plot(trajet[0], trajet[1], color='r')
+plt.axis('equal')
+plt.show()
+'''
